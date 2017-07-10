@@ -8,6 +8,7 @@ extern crate hyper_tls;
 #[macro_use]
 extern crate serde_derive;
 
+use std::str;
 use std::fs::File;
 use std::io::{self, Write};
 use futures::{Future, Stream};
@@ -20,18 +21,17 @@ use tokio_core::reactor::Core;
 struct SecretsConfig {
     spotify_client_id: String,
     spotify_secret: String,
-    //All these do now is give me compiler warnings... 
+    //All these do now is give me compiler warnings...
     //discord_client_id: String,
     //discord_secret: String
 }
 
-/*
 #[derive(Deserialize)]
 struct SpotifyAuthResponse {
     access_token: String,
     token_type: String,
-    expires_in: i64
-}*/
+    expires_in: i64,
+}
 
 const SPOTIFY_AUTH_ENDPOINT: &'static str = "https://accounts.spotify.com/api/token";
 const SPOTIFY_AUTH_REQUEST_BODY: &'static str = "grant_type=client_credentials";
@@ -43,12 +43,7 @@ fn chunk_to_bytes(chunk: Chunk) -> Vec<u8> {
     chunk.into_iter().collect()
 }
 
-fn main() {
-    //Read API keys from config file
-    let secrets_config_file = File::open("secrets.json").unwrap();
-    let config: SecretsConfig = serde_json::from_reader(secrets_config_file).unwrap();
-    println!("spotify client id = {}", config.spotify_client_id);
-
+fn spotify_auth(config: SecretsConfig) -> SpotifyAuthResponse {
     //Create client
     let mut core = Core::new().unwrap();
     let handle = core.handle();
@@ -74,5 +69,14 @@ fn main() {
         .and_then(|v| Ok(v.iter().flat_map(|x| x.clone()).collect::<Vec<_>>()));
 
     let result = core.run(work).unwrap();
-    println!("{:?}", result);
+    serde_json::from_str::<SpotifyAuthResponse>(str::from_utf8(&result).unwrap()).unwrap()
+}
+
+fn main() {
+    //Read API keys from config file
+    let secrets_config_file = File::open("secrets.json").unwrap();
+    let config: SecretsConfig = serde_json::from_reader(secrets_config_file).unwrap();
+    println!("spotify client id = {}", config.spotify_client_id);
+
+    println!("{}", spotify_auth(config).expires_in);
 }
