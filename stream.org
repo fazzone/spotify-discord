@@ -1,0 +1,58 @@
+* spotify player discord bot
+** spotify interaction
+   librespot: [[https://github.com/plietar/librespot]]
+   - can we use spotify connect somehow?
+** discord interaction
+   discord.rs: [[https://github.com/SpaceManiac/discord-rs]]
+
+* WHY RUST?
+I decided to use Rust for this project because I basically
+need to use those two libraries and they are both written in
+Rust.  There are python libraries for the Discord API, but as
+far as I know librespot is the only library that can actually
+download songs from Spotify.  
+
+* FEEDBACK REQUESTED
+- levels good? 
+- how do you feel about the key display at the top?
+
+* RUST QUESTIONS (can you help?)
+- should I commit Cargo.lock?
+- why can't I use the ? macro?
+- how can I not use unwrap() everywhere?
+** TOKIO QUESTIONS
+   - should there only ever be one Core?
+   - how bad should I feel for creating a core per request?
+** SERDE QUESTIONS
+   - how can I implement custom JSON (de)serialize?
+   - I need a JSON field called 'type' which is a rust keyword
+*** Or do I...will Spotify accept 'Type'?
+
+* MVP: `!play`
+** monitor server general chat using discord api
+** given the search string, get audio from spotify
+   we will need a librespot client program which can:
+   - perform a search
+     - librespot doesn't seem to do this,
+     - so we will need to use the regular spotify REST api
+   - extract the id of the first track in the search results
+   - return audio data
+     - get 16-bit pcm from librespot?
+** transcode/send       
+   should be handled by discord.rs
+
+** DONE set up cargo project with our deps
+** TODO write spotify search program
+*** DONE set up spotify API
+**** DONE get api key
+**** DONE load api secrets from config file 
+*** TODO make request (search tracks)
+**** DONE figure out how to authenticate with spotify 
+**** TODO *CURRENT* create and send search request      
+*** TODO parse response (extract track ID)
+
+
+
+
+
+
