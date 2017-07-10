@@ -33,17 +33,36 @@ struct SpotifyAuthResponse {
     expires_in: i64,
 }
 
+//TODO: make sure it is necessary for these names to be in lowercase
+#[derive(Serialize)]
+enum SpotifySearchDomain {
+    album,
+    artist,
+    playlist,
+    track,
+}
+
+#[derive(Serialize)]
+struct SpotifySearchQuery {
+    q: String,
+    Type: SpotifySearchDomain,
+}
+
+type SpotifyAuthToken = String;
+
 const SPOTIFY_AUTH_ENDPOINT: &'static str = "https://accounts.spotify.com/api/token";
 const SPOTIFY_AUTH_REQUEST_BODY: &'static str = "grant_type=client_credentials";
 
 const SPOTIFY_SEARCH_ENDPOINT: &'static str = "https://api.spotify.com/v1/search";
 
 fn chunk_to_bytes(chunk: Chunk) -> Vec<u8> {
-    println!("chunk-to-bytes!");
+    //do we really need to collect() here and in the calling code?
     chunk.into_iter().collect()
 }
 
-fn spotify_auth(config: SecretsConfig) -> SpotifyAuthResponse {
+//Give Spotify our client ID and secret to get a bearer auth token that we can
+//use for actual API requests
+fn get_auth_token(config: SecretsConfig) -> SpotifyAuthToken {
     //Create client
     let mut core = Core::new().unwrap();
     let handle = core.handle();
@@ -69,8 +88,14 @@ fn spotify_auth(config: SecretsConfig) -> SpotifyAuthResponse {
         .and_then(|v| Ok(v.iter().flat_map(|x| x.clone()).collect::<Vec<_>>()));
 
     let result = core.run(work).unwrap();
-    serde_json::from_str::<SpotifyAuthResponse>(str::from_utf8(&result).unwrap()).unwrap()
+    serde_json::from_str::<SpotifyAuthResponse>(str::from_utf8(&result).unwrap())
+        .unwrap()
+        .access_token
 }
+
+//we can't write this function yet because we have no idea what sort of things we want
+//to return....
+//fn spotify_search(token: SpotifyAuthToken, domain: SpotifySearchDomain, query: String)
 
 fn main() {
     //Read API keys from config file
@@ -78,5 +103,11 @@ fn main() {
     let config: SecretsConfig = serde_json::from_reader(secrets_config_file).unwrap();
     println!("spotify client id = {}", config.spotify_client_id);
 
-    println!("{}", spotify_auth(config).expires_in);
+    let auth_token = get_auth_token(config);
+    /*
+    let search_input = SpotifySearchQuery {
+        q: "wool in the wash",
+        Type: SpotifySearchDomain::track,
+    };
+    */    
 }
