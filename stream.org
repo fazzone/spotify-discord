@@ -28,7 +28,7 @@ download songs from Spotify.
    - I need a JSON field called 'type' which is a rust keyword
 *** Or do I...will Spotify accept 'Type'?
 
-* MVP: `!play`
+* MVP: `!play`o
 ** monitor server general chat using discord api
 ** given the search string, get audio from spotify
    we will need a librespot client program which can:
@@ -41,15 +41,17 @@ download songs from Spotify.
 ** transcode/send       
    should be handled by discord.rs
 
+* CURRENTLY WORKING ON:
 ** DONE set up cargo project with our deps
 ** TODO write spotify search program
 *** DONE set up spotify API
 **** DONE get api key
 **** DONE load api secrets from config file 
 *** TODO make request (search tracks)
-**** DONE figure out how to authenticate with spotify 
-**** TODO *CURRENT* create and send search request      
-*** TODO parse response (extract track ID)
+**** DONE figure out how to authenticate with spotify
+**** DONE *CURRENT* create and send search request
+*** DONE parse response (extract track ID)
+**** DONE how to parse unstructured json
 
 
 
